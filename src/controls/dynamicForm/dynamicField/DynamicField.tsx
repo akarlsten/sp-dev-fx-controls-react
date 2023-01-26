@@ -44,7 +44,9 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
 
   public render(): JSX.Element {
     try {
-      return this.props.isInReadMode && !this.props.fieldDefaultValue ? null : (
+      return this.props.isInReadMode
+        && (!this.props.fieldDefaultValue
+          || (Array.isArray(this.props.fieldDefaultValue) && this.props.fieldDefaultValue.every(value => !value || "null"))) ? null : (
         <div className={styles.FieldEditor}>
           {this.getFieldComponent()}
         </div>
