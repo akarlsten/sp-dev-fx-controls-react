@@ -1,7 +1,7 @@
 {
-  "name": "@pnp/spfx-controls-react",
+  "name": "@akarlsten/spfx-controls-react",
   "description": "Reusable React controls for SharePoint Framework solutions",
-  "version": "3.12.0",
+  "version": "3.12.1",
   "scripts": {
     "build": "gulp build",
     "clean": "gulp clean",
@@ -109,7 +109,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pnp/sp-dev-fx-controls-react"
+    "url": "git+https://github.com/akarlsten/sp-dev-fx-controls-react"
   },
   "license": "MIT",
   "keywords": [
@@ -126,8 +126,8 @@
   "homepage": "https://pnp.github.io/sp-dev-fx-controls-react/",
   "contributors": [
     "Gove, Russell <russellgove@gmail.com>",
-    "Kent Chris <>",
-    "Rodrigues, Joel <>",
+    "Kent Chris",
+    "Rodrigues, Joel",
     "Struyf, Elio <info@estruyf.be>",
     "Terentiev, Alex <alex@aterentiev.com>"
   ],
@@ -157,5 +157,12 @@
       "ControlStrings": "identity-obj-proxy",
       "\\.(css|scss)$": "identity-obj-proxy"
     }
-  }
+  },
+  "types": "./lib/index.d.ts",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "tests"
+  },
+  "author": ""
 }
