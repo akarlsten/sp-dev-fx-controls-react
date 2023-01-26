@@ -1,57 +1,57 @@
-import '@pnp/sp/folders';
-import { sp } from '@pnp/sp/presets/all';
-import '@pnp/sp/webs';
-import * as strings from 'ControlStrings';
-import { ActionButton } from 'office-ui-fabric-react/lib/Button';
-import { Dropdown, IDropdownOption, IDropdownProps } from 'office-ui-fabric-react/lib/components/Dropdown';
-import { DatePicker } from 'office-ui-fabric-react/lib/DatePicker';
-import { Icon } from 'office-ui-fabric-react/lib/Icon';
-import { Image } from 'office-ui-fabric-react/lib/Image';
-import { Shimmer } from 'office-ui-fabric-react/lib/Shimmer';
-import { Stack } from 'office-ui-fabric-react/lib/Stack';
-import { TextField } from 'office-ui-fabric-react/lib/TextField';
-import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
-import * as React from 'react';
-import { DateTimePicker } from '../../dateTimePicker/DateTimePicker';
-import { FilePicker, IFilePickerResult } from '../../filePicker';
-import { ListItemPicker } from '../../listItemPicker';
-import { LocationPicker } from '../../locationPicker';
-import { PeoplePicker, PrincipalType } from '../../peoplepicker';
-import { RichText } from '../../richText';
-import { IPickerTerms, TaxonomyPicker } from '../../taxonomyPicker';
-import styles from '../DynamicForm.module.scss';
-import { IDynamicFieldProps } from './IDynamicFieldProps';
-import { IDynamicFieldState } from './IDynamicFieldState';
+import '@pnp/sp/folders'
+import { sp } from '@pnp/sp/presets/all'
+import '@pnp/sp/webs'
+import * as strings from 'ControlStrings'
+import { ActionButton } from 'office-ui-fabric-react/lib/Button'
+import { Dropdown, IDropdownOption, IDropdownProps } from 'office-ui-fabric-react/lib/components/Dropdown'
+import { DatePicker } from 'office-ui-fabric-react/lib/DatePicker'
+import { Icon } from 'office-ui-fabric-react/lib/Icon'
+import { Image } from 'office-ui-fabric-react/lib/Image'
+import { Shimmer } from 'office-ui-fabric-react/lib/Shimmer'
+import { Stack } from 'office-ui-fabric-react/lib/Stack'
+import { TextField } from 'office-ui-fabric-react/lib/TextField'
+import { Toggle } from 'office-ui-fabric-react/lib/Toggle'
+import * as React from 'react'
+import { DateTimePicker } from '../../dateTimePicker/DateTimePicker'
+import { FilePicker, IFilePickerResult } from '../../filePicker'
+import { ListItemPicker } from '../../listItemPicker'
+import { LocationPicker } from '../../locationPicker'
+import { PeoplePicker, PrincipalType } from '../../peoplepicker'
+import { RichText } from '../../richText'
+import { IPickerTerms, TaxonomyPicker } from '../../taxonomyPicker'
+import styles from '../DynamicForm.module.scss'
+import { IDynamicFieldProps } from './IDynamicFieldProps'
+import { IDynamicFieldState } from './IDynamicFieldState'
 
 
 export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFieldState> {
 
   constructor(props: IDynamicFieldProps) {
-    super(props);
+    super(props)
     sp.setup({
       spfxContext: { pageContext: this.props.context.pageContext }
-    });
+    })
     this.state = {
       changedValue: props.fieldType === 'Thumbnail' ? props.fieldDefaultValue : null
-    };
+    }
   }
 
   public componentDidUpdate(): void {
     if (this.props.fieldDefaultValue === "" && this.state.changedValue === null) {
-      this.setState({ changedValue: "" });
+      this.setState({ changedValue: "" })
     }
   }
 
   public render(): JSX.Element {
     try {
-      return (
+      return this.props.isInReadMode && !this.props.fieldDefaultValue ? null : (
         <div className={styles.FieldEditor}>
           {this.getFieldComponent()}
         </div>
-      );
+      )
     } catch (error) {
-      console.log(`Error in DynamicField render`, error);
-      return null;
+      console.log(`Error in DynamicField render`, error)
+      return null
     }
   }
 
@@ -77,27 +77,27 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
       columnInternalName,
       principalType,
       description
-    } = this.props;
+    } = this.props
 
     const {
       changedValue
-    } = this.state;
+    } = this.state
 
     const dropdownOptions: IDropdownProps = {
       options: options,
       disabled: disabled,
       placeholder: placeholder
-    };
+    }
 
-    const labelText = fieldTitle !== null ? fieldTitle : label;
-    const defaultValue = fieldDefaultValue;
+    const labelText = fieldTitle !== null ? fieldTitle : label
+    const defaultValue = fieldDefaultValue
 
 
-    const labelEl = <label className={(required) ? styles.fieldRequired + ' ' + styles.fieldLabel : styles.fieldLabel}>{labelText}</label>;
-    const errorText = this.getRequiredErrorText();
-    const errorTextEl = <text className={styles.errormessage}>{errorText}</text>;
-    const descriptionEl = <text className={styles.fieldDescription}>{description}</text>;
-    const hasImage = !!changedValue;
+    const labelEl = <label className={(required && !this.props.isInReadMode) ? styles.fieldRequired + ' ' + styles.fieldLabel : styles.fieldLabel}>{labelText}</label>
+    const errorText = this.getRequiredErrorText()
+    const errorTextEl = <text className={styles.errormessage}>{errorText}</text>
+    const descriptionEl = <text className={styles.fieldDescription}>{description}</text>
+    const hasImage = !!changedValue
 
     switch (fieldType) {
       case 'loading':
@@ -105,7 +105,7 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
           root: {
             margin: '25px'
           }
-        }} />;
+        }} />
 
       case 'Text':
         return <div>
@@ -113,21 +113,27 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
             <Icon className={styles.fieldIcon} iconName={"TextField"} />
             {labelEl}
           </div>
-          <TextField
-            defaultValue={defaultValue}
-            placeholder={placeholder}
-            className={styles.feildDisplay}
-            onChange={(e, newText) => { this.onChange(newText); }}
-            disabled={disabled}
-            onBlur={this.onBlur}
-            errorMessage={errorText}
-          />
+          {
+            this.props.isInReadMode ? (
+              <span className={styles.readModeSpan}>{defaultValue}</span>
+            ) : (
+              <TextField
+                defaultValue={defaultValue}
+                placeholder={placeholder}
+                className={styles.feildDisplay}
+                onChange={(e, newText) => { this.onChange(newText) }}
+                disabled={disabled}
+                onBlur={this.onBlur}
+                errorMessage={errorText}
+              />
+            )
+          }
           {descriptionEl}
-        </div>;
+        </div>
 
       case 'Note':
         if (isRichText) {
-          const value = this.props.newValue ? this.props.newValue : defaultValue;
+          const value = this.props.newValue ? this.props.newValue : defaultValue
           return <div className={styles.richText}>
             <div className={styles.titleContainer}>
               <Icon className={styles.fieldIcon} iconName={"AlignLeft"} />
@@ -137,11 +143,11 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
               placeholder={placeholder}
               value={value}
               className={styles.feildDisplay}
-              onChange={(newText) => { this.onChange(newText); return newText; }}
+              onChange={(newText) => { this.onChange(newText); return newText }}
               isEditMode={disabled} />
             {descriptionEl}
             {errorTextEl}
-          </div>;
+          </div>
         }
         else {
           return <div>
@@ -154,13 +160,13 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
               placeholder={placeholder}
               className={styles.feildDisplay}
               multiline
-              onChange={(e, newText) => { this.onChange(newText); }}
+              onChange={(e, newText) => { this.onChange(newText) }}
               disabled={disabled}
               onBlur={this.onBlur}
               errorMessage={errorText}
             />
             {descriptionEl}
-          </div>;
+          </div>
         }
 
       case 'Choice':
@@ -169,14 +175,18 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
             <Icon className={styles.fieldIcon} iconName={"CheckMark"} />
             {labelEl}
           </div>
-          <Dropdown
-            {...dropdownOptions}
-            defaultSelectedKey={defaultValue}
-            onChange={(e, option) => { this.onChange(option); }}
-            onBlur={this.onBlur}
-            errorMessage={errorText} />
+          {this.props.isInReadMode ? (
+            <span className={styles.readModeSpan}>{defaultValue}</span>
+          ) : (
+            <Dropdown
+              {...dropdownOptions}
+              defaultSelectedKey={defaultValue}
+              onChange={(e, option) => { this.onChange(option) }}
+              onBlur={this.onBlur}
+              errorMessage={errorText} />
+          )}
           {descriptionEl}
-        </div>;
+        </div>
 
       case 'MultiChoice':
         return <div className={styles.fieldContainer}>
@@ -184,15 +194,19 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
             <Icon className={styles.fieldIcon} iconName={"MultiSelect"} />
             {labelEl}
           </div>
-          <Dropdown
-            {...dropdownOptions}
-            defaultSelectedKeys={defaultValue}
-            onChange={this.MultiChoice_selection}
-            multiSelect
-            onBlur={this.onBlur}
-            errorMessage={errorText} />
+          {this.props.isInReadMode ? (
+            <span className={styles.readModeSpan}>{defaultValue}</span>
+          ) : (
+            <Dropdown
+              {...dropdownOptions}
+              defaultSelectedKeys={defaultValue}
+              onChange={this.MultiChoice_selection}
+              multiSelect
+              onBlur={this.onBlur}
+              errorMessage={errorText} />
+          )}
           {descriptionEl}
-        </div>;
+        </div>
 
       case 'Location':
         return <div className={styles.fieldContainer}>
@@ -204,12 +218,12 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
             context={context}
             disabled={disabled}
             placeholder={placeholder}
-            onChange={(newValue) => { this.onChange(newValue); }}
+            onChange={(newValue) => { this.onChange(newValue) }}
             defaultValue={defaultValue}
             errorMessage={errorText}
           />
           {descriptionEl}
-        </div>;
+        </div>
 
       case 'Lookup':
         return <div>
@@ -226,12 +240,12 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
             enableDefaultSuggestions={true}
             keyColumnInternalName='Id'
             itemLimit={1}
-            onSelectedItem={(newValue) => { this.onChange(newValue); }}
+            onSelectedItem={(newValue) => { this.onChange(newValue) }}
             context={context}
           />
           {descriptionEl}
           {errorTextEl}
-        </div>;
+        </div>
 
       case 'LookupMulti':
         return <div>
@@ -247,12 +261,12 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
             className={styles.feildDisplay}
             keyColumnInternalName='Id'
             itemLimit={100}
-            onSelectedItem={(newValue) => { this.onChange(newValue); }}
+            onSelectedItem={(newValue) => { this.onChange(newValue) }}
             context={context}
           />
           {descriptionEl}
           {errorTextEl}
-        </div>;
+        </div>
 
       case 'Number':
         return <div>
@@ -260,17 +274,21 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
             <Icon className={styles.fieldIcon} iconName={"NumberField"} />
             {labelEl}
           </div>
-          <TextField
-            defaultValue={defaultValue}
-            placeholder={placeholder}
-            className={styles.feildDisplay}
-            type={"Number"}
-            onChange={(e, newText) => { this.onChange(newText); }}
-            disabled={disabled}
-            onBlur={this.onBlur}
-            errorMessage={errorText} />
+          {this.props.isInReadMode ? (
+            <span className={styles.readModeSpan}>{defaultValue}</span>
+          ) : (
+            <TextField
+              defaultValue={defaultValue}
+              placeholder={placeholder}
+              className={styles.feildDisplay}
+              type={"Number"}
+              onChange={(e, newText) => { this.onChange(newText) }}
+              disabled={disabled}
+              onBlur={this.onBlur}
+              errorMessage={errorText} />
+          )}
           {descriptionEl}
-        </div>;
+        </div>
 
       case 'Currency':
         return <div>
@@ -278,17 +296,21 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
             <Icon className={styles.fieldIcon} iconName={"AllCurrency"} />
             {labelEl}
           </div>
-          <TextField
-            defaultValue={defaultValue}
-            placeholder={placeholder}
-            className={styles.feildDisplay}
-            type={"Currency"}
-            onChange={(e, newText) => { this.onChange(newText); }}
-            disabled={disabled}
-            onBlur={this.onBlur}
-            errorMessage={errorText} />
+          {this.props.isInReadMode ? (
+            <span className={styles.readModeSpan}>{defaultValue}</span>
+          ) : (
+            <TextField
+              defaultValue={defaultValue}
+              placeholder={placeholder}
+              className={styles.feildDisplay}
+              type={"Currency"}
+              onChange={(e, newText) => { this.onChange(newText) }}
+              disabled={disabled}
+              onBlur={this.onBlur}
+              errorMessage={errorText} />
+          )}
           {descriptionEl}
-        </div>;
+        </div>
 
       case 'DateTime':
         return <div className={styles.fieldContainer}>
@@ -296,32 +318,51 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
             <Icon className={styles.fieldIcon} iconName={"Calendar"} />
             {labelEl}
           </div>
-          {
-            dateFormat === 'DateOnly' &&
-            <DatePicker
-              placeholder={placeholder}
-              className={styles.pickersContainer}
-              formatDate={(date) => { return date.toLocaleDateString(context.pageContext.cultureInfo.currentCultureName); }}
-              value={(changedValue !== null && changedValue !== "") ? changedValue : defaultValue}
-              onSelectDate={(newDate) => { this.onChange(newDate); }}
-              disabled={disabled}
-              firstDayOfWeek={firstDayOfWeek}
-            />}
-          {
-            dateFormat === 'DateTime' &&
-            <DateTimePicker
-              key={columnInternalName}
-              placeholder={placeholder}
-              formatDate={(date) => { return date.toLocaleDateString(context.pageContext.cultureInfo.currentCultureName); }}
-              value={(changedValue !== null && changedValue !== "") ? changedValue : defaultValue}
-              onChange={(newDate) => { this.onChange(newDate); }}
-              disabled={disabled}
-              firstDayOfWeek={firstDayOfWeek}
-            />
-          }
+          {this.props.isInReadMode ? (
+            <>
+              {
+                dateFormat === 'DateOnly' &&
+                // @ts-ignore
+                <span className={styles.readModeSpan}>{Intl.DateTimeFormat(undefined, { dateStyle: 'full' }).format(defaultValue)}</span>
+              }
+              {
+                dateFormat === 'DateTime' &&
+                // @ts-ignore
+                <span className={styles.readModeSpan}>{Intl.DateTimeFormat(undefined, { dateStyle: 'full', timeStyle: 'short' }).format(defaultValue)}</span>
+              }
+
+            </>
+          ) : (
+            <>
+              {
+                dateFormat === 'DateOnly' &&
+                <DatePicker
+                  placeholder={placeholder}
+                  className={styles.pickersContainer}
+                  formatDate={(date) => { return date.toLocaleDateString(context.pageContext.cultureInfo.currentCultureName) }}
+                  value={(changedValue !== null && changedValue !== "") ? changedValue : defaultValue}
+                  onSelectDate={(newDate) => { this.onChange(newDate) }}
+                  disabled={disabled}
+                  firstDayOfWeek={firstDayOfWeek}
+                />}
+              {
+                dateFormat === 'DateTime' &&
+                <DateTimePicker
+                  key={columnInternalName}
+                  placeholder={placeholder}
+                  formatDate={(date) => { return date.toLocaleDateString(context.pageContext.cultureInfo.currentCultureName) }}
+                  value={(changedValue !== null && changedValue !== "") ? changedValue : defaultValue}
+                  onChange={(newDate) => { this.onChange(newDate) }}
+                  disabled={disabled}
+                  firstDayOfWeek={firstDayOfWeek}
+                />
+              }
+            </>
+          )}
+
           {descriptionEl}
           {errorTextEl}
-        </div>;
+        </div>
 
       case 'Boolean':
         return <div>
@@ -334,12 +375,12 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
             defaultChecked={defaultValue}
             onText={strings.Yes}
             offText={strings.No}
-            onChange={(e, checkedvalue) => { this.onChange(checkedvalue); }}
+            onChange={(e, checkedvalue) => { this.onChange(checkedvalue) }}
             disabled={disabled}
           />
           {descriptionEl}
           {errorTextEl}
-        </div>;
+        </div>
 
       case 'User':
         return <div>
@@ -357,12 +398,12 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
             showHiddenInUI={false}
             principalTypes={principalType === 'PeopleOnly' ? [PrincipalType.User] : [PrincipalType.User, PrincipalType.SharePointGroup, PrincipalType.DistributionList, PrincipalType.SecurityGroup]}
             resolveDelay={1000}
-            onChange={(items) => { this.onChange(items); }}
+            onChange={(items) => { this.onChange(items) }}
             disabled={disabled}
           />
           {descriptionEl}
           {errorTextEl}
-        </div>;
+        </div>
 
       case 'UserMulti':
         return <div>
@@ -380,12 +421,12 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
             showHiddenInUI={false}
             principalTypes={principalType === 'PeopleOnly' ? [PrincipalType.User] : [PrincipalType.User, PrincipalType.SharePointGroup, PrincipalType.DistributionList, PrincipalType.SecurityGroup]}
             resolveDelay={1000}
-            onChange={(items) => { this.onChange(items); }}
+            onChange={(items) => { this.onChange(items) }}
             disabled={disabled}
           />
           {descriptionEl}
           {errorTextEl}
-        </div>;
+        </div>
 
       case 'URL':
         return <div>
@@ -393,25 +434,28 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
             <Icon className={styles.fieldIcon} iconName={"Link"} />
             {labelEl}
           </div>
-          <Stack
-            tokens={{ childrenGap: 4 }}>
-            <TextField
-              defaultValue={defaultValue ? defaultValue.Url : ''}
-              placeholder={strings.DynamicFormEnterURLPlaceholder}
-              className={styles.feildDisplayNoPadding}
-              onChange={(e, newText) => { this.onURLChange(newText, true); }}
-              disabled={disabled}
-              onBlur={this.onBlur} />
-            <TextField
-              defaultValue={defaultValue ? defaultValue.Description : ''}
-              placeholder={strings.DynamicFormEnterDescriptionPlaceholder}
-              className={styles.feildDisplayNoPadding}
-              onChange={(e, newText) => { this.onURLChange(newText, false); }}
-              disabled={disabled} />
-          </Stack>
+          {this.props.isInReadMode ? (
+            <a className={styles.readModeSpan} href={defaultValue?.Url}>{defaultValue?.Description ?? defaultValue?.Url}</a>
+          ) : (
+            <Stack
+              tokens={{ childrenGap: 4 }}>
+              <TextField
+                defaultValue={defaultValue ? defaultValue.Url : ''}
+                placeholder={strings.DynamicFormEnterURLPlaceholder}
+                className={styles.feildDisplayNoPadding}
+                onChange={(e, newText) => { this.onURLChange(newText, true) }}
+                disabled={disabled}
+                onBlur={this.onBlur} />
+              <TextField
+                defaultValue={defaultValue ? defaultValue.Description : ''}
+                placeholder={strings.DynamicFormEnterDescriptionPlaceholder}
+                className={styles.feildDisplayNoPadding}
+                onChange={(e, newText) => { this.onURLChange(newText, false) }}
+                disabled={disabled} />
+            </Stack>)}
           {descriptionEl}
           {errorTextEl}
-        </div>;
+        </div>
 
       case 'Thumbnail':
         return <div>
@@ -426,39 +470,49 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
               childrenGap: 20
             }}
             horizontalAlign={'space-between'}>
-            {hasImage && <Image
-              src={changedValue}
-              height={60}
-            />}
-            <div className={styles.thumbnailFieldButtons}>
-              <FilePicker
-                buttonClassName={styles.feildDisplay}
-                //bingAPIKey={bingAPIKey}
-                accepts={[".gif", ".jpg", ".jpeg", ".bmp", ".dib", ".tif", ".tiff", ".ico", ".png", ".jxr", ".svg"]}
-                buttonLabel={hasImage ? undefined : 'Add an image'}
-                buttonIcon={hasImage ? 'Edit' : 'FileImage'}
-                onSave={this.saveIntoSharePoint}
-                onChange={this.saveIntoSharePoint}
-                context={context}
-                disabled={disabled}
-                hideLocalMultipleUploadTab={true}
-                hideOneDriveTab={true}
-                hideStockImages={true}
-                hideWebSearchTab={true}
+            {this.props.isInReadMode ? (
+              <Image
+                src={defaultValue}
+                height={200}
               />
-              {hasImage &&
-                <ActionButton
-                  disabled={disabled}
-                  iconProps={{
-                    iconName: 'Delete'
-                  }}
-                  onClick={this.onDeleteImage}
+            ) : null}
+            {!this.props.isInReadMode ? (
+              <>
+                {hasImage && <Image
+                  src={changedValue}
+                  height={60}
                 />}
-            </div>
+                <div className={styles.thumbnailFieldButtons}>
+                  <FilePicker
+                    buttonClassName={styles.feildDisplay}
+                    //bingAPIKey={bingAPIKey}
+                    accepts={[".gif", ".jpg", ".jpeg", ".bmp", ".dib", ".tif", ".tiff", ".ico", ".png", ".jxr", ".svg"]}
+                    buttonLabel={hasImage ? undefined : 'Add an image'}
+                    buttonIcon={hasImage ? 'Edit' : 'FileImage'}
+                    onSave={this.saveIntoSharePoint}
+                    onChange={this.saveIntoSharePoint}
+                    context={context}
+                    disabled={disabled}
+                    hideLocalMultipleUploadTab={true}
+                    hideOneDriveTab={true}
+                    hideStockImages={true}
+                    hideWebSearchTab={true}
+                  />
+                  {hasImage &&
+                    <ActionButton
+                      disabled={disabled}
+                      iconProps={{
+                        iconName: 'Delete'
+                      }}
+                      onClick={this.onDeleteImage}
+                    />}
+                </div>
+              </>
+            ) : null}
           </Stack>
           {descriptionEl}
           {errorTextEl}
-        </div>;
+        </div>
 
       case 'TaxonomyFieldTypeMulti':
         return <div className={styles.fieldContainer}>
@@ -477,13 +531,13 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
               anchorId={fieldAnchorId}
               panelTitle={strings.DynamicFormTermPanelTitle}
               context={context}
-              onChange={(newValue?: IPickerTerms) => { this.onChange(newValue); }}
+              onChange={(newValue?: IPickerTerms) => { this.onChange(newValue) }}
               isTermSetSelectable={false}
             />
           </div>
           {descriptionEl}
           {errorTextEl}
-        </div>;
+        </div>
 
       case 'TaxonomyFieldType':
         return <div className={styles.fieldContainer}>
@@ -502,15 +556,15 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
               anchorId={fieldAnchorId}
               panelTitle={strings.DynamicFormTermPanelTitle}
               context={context}
-              onChange={(newValue?: IPickerTerms) => { this.onChange(newValue); }}
+              onChange={(newValue?: IPickerTerms) => { this.onChange(newValue) }}
               isTermSetSelectable={false} />
           </div>
           {descriptionEl}
           {errorTextEl}
-        </div>;
+        </div>
     }
 
-    return null;
+    return null
   }
 
   private onDeleteImage = (): void => {
@@ -518,14 +572,14 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
     const {
       onChanged,
       columnInternalName
-    } = this.props;
+    } = this.props
 
     this.setState({
       changedValue: undefined
-    });
+    })
 
     if (onChanged) {
-      onChanged(columnInternalName, undefined, undefined);
+      onChanged(columnInternalName, undefined, undefined)
     }
   }
 
@@ -534,29 +588,29 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
       fieldDefaultValue,
       onChanged,
       columnInternalName
-    } = this.props;
+    } = this.props
 
     let currValue = this.state.changedValue || fieldDefaultValue || {
       Url: '',
       Description: ''
-    };
+    }
     currValue = {
       ...currValue
-    };
+    }
 
     if (isUrl) {
-      currValue.Url = value;
+      currValue.Url = value
     }
     else {
-      currValue.Description = value;
+      currValue.Description = value
     }
 
     this.setState({
       changedValue: currValue
-    });
+    })
 
     if (onChanged) {
-      onChanged(columnInternalName, currValue);
+      onChanged(columnInternalName, currValue)
     }
   }
 
@@ -564,56 +618,56 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
     const {
       onChanged,
       columnInternalName
-    } = this.props;
+    } = this.props
 
     if (onChanged) {
-      onChanged(columnInternalName, value);
+      onChanged(columnInternalName, value)
     }
     this.setState({
       changedValue: value
-    });
+    })
   }
 
   private onBlur = (): void => {
     if (this.state.changedValue === null && this.props.fieldDefaultValue === "") {
-      this.setState({ changedValue: "" });
+      this.setState({ changedValue: "" })
     }
   }
 
   private getRequiredErrorText = (): string => {
     const {
       changedValue
-    } = this.state;
-    return (changedValue === undefined || changedValue === '') && this.props.required ? strings.DynamicFormRequiredErrorMessage : null;
+    } = this.state
+    return (changedValue === undefined || changedValue === '') && this.props.required ? strings.DynamicFormRequiredErrorMessage : null
   }
 
   private MultiChoice_selection = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
     const {
       changedValue
-    } = this.state;
+    } = this.state
     try {
-      let seletedItemArr;
+      let seletedItemArr
       if (changedValue === null && this.props.fieldDefaultValue !== null) {
-        seletedItemArr = [];
+        seletedItemArr = []
         this.props.fieldDefaultValue.forEach(element => {
-          seletedItemArr.push(element);
-        });
+          seletedItemArr.push(element)
+        })
       }
       else
-        seletedItemArr = !changedValue ? [] : changedValue;
+        seletedItemArr = !changedValue ? [] : changedValue
       if (item.selected) {
-        seletedItemArr.push(item.key);
+        seletedItemArr.push(item.key)
       }
       else {
-        const i = seletedItemArr.indexOf(item.key);
+        const i = seletedItemArr.indexOf(item.key)
         if (i >= 0) {
-          seletedItemArr.splice(i, 1);
+          seletedItemArr.splice(i, 1)
         }
       }
-      this.setState({ changedValue: seletedItemArr });
-      this.props.onChanged(this.props.columnInternalName, seletedItemArr);
+      this.setState({ changedValue: seletedItemArr })
+      this.props.onChanged(this.props.columnInternalName, seletedItemArr)
     } catch (error) {
-      console.log(`Error MultiChoice_selection`, error);
+      console.log(`Error MultiChoice_selection`, error)
     }
   }
 
@@ -621,31 +675,31 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
     const {
       columnInternalName,
       onChanged
-    } = this.props;
+    } = this.props
 
-    let newValue: string;
+    let newValue: string
     if (!files.length) {
-      return;
+      return
     }
 
     try {
-      const file = files[0];
+      const file = files[0]
       if (file.fileAbsoluteUrl === null) {
-        newValue = file.previewDataUrl;
+        newValue = file.previewDataUrl
       }
       else {
-        newValue = file.fileAbsoluteUrl;
+        newValue = file.fileAbsoluteUrl
       }
 
       this.setState({
         changedValue: newValue
-      });
+      })
       if (onChanged) {
-        onChanged(columnInternalName, newValue, file);
+        onChanged(columnInternalName, newValue, file)
       }
     }
     catch (error) {
-      console.log(`Error save Into SharePoint`, error);
+      console.log(`Error save Into SharePoint`, error)
     }
   }
 }
