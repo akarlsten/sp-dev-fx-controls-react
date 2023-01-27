@@ -72,4 +72,5 @@ export interface IDynamicFormProps {
   webAbsoluteUrl?: string
 
   isInReadMode?: boolean
+  hideEmptyFields?: boolean
 }

@@ -67,10 +67,6 @@ export class DynamicForm extends React.Component<IDynamicFormProps, IDynamicForm
     this.getFieldInformations().then(() => { /* no-op; */ }).catch(() => { /* no-op; */ })
   }
 
-  public async componentWillUnmount(): Promise<void> {
-    await this.onSubmitClick()
-  }
-
   /**
    * Default React component render method
    */
@@ -91,7 +87,7 @@ export class DynamicForm extends React.Component<IDynamicFormProps, IDynamicForm
                 v.disabled = v.disabled || isSaving
                 return fieldOverrides[v.columnInternalName](v)
               }
-              return <DynamicField key={v.columnInternalName} {...v} disabled={v.disabled || isSaving} isInReadMode={this.props.isInReadMode} />
+              return <DynamicField key={v.columnInternalName} {...v} disabled={v.disabled || isSaving} hideEmptyFields={this.props.hideEmptyFields} isInReadMode={this.props.isInReadMode} />
             })}
           </div>
         }

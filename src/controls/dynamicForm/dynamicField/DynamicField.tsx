@@ -45,8 +45,8 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
   public render(): JSX.Element {
     try {
       return this.props.isInReadMode
-        && (!this.props.fieldDefaultValue
-          || (Array.isArray(this.props.fieldDefaultValue) && this.props.fieldDefaultValue.every(value => !value || "null"))) ? null : (
+        && (this.props.hideEmptyFields && (!this.props.fieldDefaultValue
+          || (Array.isArray(this.props.fieldDefaultValue) && this.props.fieldDefaultValue.every(value => !value || "null")))) ? null : (
         <div className={styles.FieldEditor}>
           {this.getFieldComponent()}
         </div>
@@ -97,8 +97,8 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
 
     const labelEl = <label className={(required && !this.props.isInReadMode) ? styles.fieldRequired + ' ' + styles.fieldLabel : styles.fieldLabel}>{labelText}</label>
     const errorText = this.getRequiredErrorText()
-    const errorTextEl = <text className={styles.errormessage}>{errorText}</text>
-    const descriptionEl = <text className={styles.fieldDescription}>{description}</text>
+    const errorTextEl = <span className={styles.errormessage}>{errorText}</span>
+    const descriptionEl = <span className={styles.fieldDescription}>{description}</span>
     const hasImage = !!changedValue
 
     switch (fieldType) {

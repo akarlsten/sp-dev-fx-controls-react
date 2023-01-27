@@ -35,4 +35,5 @@ export interface IDynamicFieldProps {
   principalType?: string
   description?: string
   isInReadMode?: boolean
+  hideEmptyFields?: boolean
 }
