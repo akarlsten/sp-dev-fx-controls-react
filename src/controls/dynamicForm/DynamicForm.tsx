@@ -138,6 +138,7 @@ export class DynamicForm extends React.Component<IDynamicFormProps, IDynamicForm
       }
 
       const objects = {}
+
       for (let i = 0, len = fields.length; i < len; i++) {
         const val = fields[i]
         const {
@@ -146,7 +147,7 @@ export class DynamicForm extends React.Component<IDynamicFormProps, IDynamicForm
           columnInternalName,
           hiddenFieldName
         } = val
-        if (val.newValue !== null && val.newValue !== undefined) {
+        if (val.newValue !== null && (val.newValue !== undefined || fieldType === "DateTime")) {
           let value = val.newValue
           if (fieldType === "Lookup") {
             objects[`${columnInternalName}Id`] = value[0].key
@@ -197,8 +198,13 @@ export class DynamicForm extends React.Component<IDynamicFormProps, IDynamicForm
             else {
               objects[columnInternalName] = null
             }
-          }
-          else {
+          } else if (fieldType === 'DateTime') {
+            if (val.newValue === undefined) {
+              objects[columnInternalName] = null
+            } else {
+              objects[columnInternalName] = val.newValue
+            }
+          } else {
             objects[columnInternalName] = val.newValue
           }
         }
@@ -337,6 +343,7 @@ export class DynamicForm extends React.Component<IDynamicFormProps, IDynamicForm
         }
       }
     }
+
     this.setState({
       fieldCollection: fieldCol
     })
@@ -453,7 +460,9 @@ export class DynamicForm extends React.Component<IDynamicFormProps, IDynamicForm
             if (defaultValue === "")
               defaultValue = null
           } else if (fieldType === "DateTime") {
-            if (item !== null && item[field.InternalName])
+            if (!defaultValue) {
+              defaultValue = null
+            } else if (item !== null && item[field.InternalName])
               defaultValue = new Date(item[field.InternalName])
             else if (defaultValue === '[today]') {
               defaultValue = new Date()

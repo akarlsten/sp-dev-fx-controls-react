@@ -12,6 +12,7 @@ import { Stack } from 'office-ui-fabric-react/lib/Stack'
 import { TextField } from 'office-ui-fabric-react/lib/TextField'
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle'
 import * as React from 'react'
+import { TimeConvention, TimeDisplayControlType } from '../../dateTimePicker'
 import { DateTimePicker } from '../../dateTimePicker/DateTimePicker'
 import { FilePicker, IFilePickerResult } from '../../filePicker'
 import { ListItemPicker } from '../../listItemPicker'
@@ -350,8 +351,12 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
               {
                 dateFormat === 'DateTime' &&
                 <DateTimePicker
+                  // showClearDate={true}
                   key={columnInternalName}
                   placeholder={placeholder}
+                  minutesIncrementStep={5}
+                  timeConvention={TimeConvention.Hours24}
+                  timeDisplayControlType={TimeDisplayControlType.Dropdown}
                   formatDate={(date) => { return date.toLocaleDateString(context.pageContext.cultureInfo.currentCultureName) }}
                   value={(changedValue !== null && changedValue !== "") ? changedValue : defaultValue}
                   onChange={(newDate) => { this.onChange(newDate) }}
@@ -359,6 +364,16 @@ export class DynamicField extends React.Component<IDynamicFieldProps, IDynamicFi
                   firstDayOfWeek={firstDayOfWeek}
                 />
               }
+              <ActionButton
+                disabled={disabled}
+                iconProps={{
+                  iconName: 'Delete'
+                }}
+                onClick={() => {
+                  this.setState({ changedValue: undefined })
+                  this.props.onChanged(columnInternalName, undefined)
+                }}
+              />
             </>
           )}
 
